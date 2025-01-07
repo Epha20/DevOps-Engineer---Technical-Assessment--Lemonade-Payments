@@ -1,0 +1,10 @@
+- name: cron job to monitor CPU usage
+  hosts: lemonade_server_1
+  become: true
+  tasks:
+    - name: cron job to monitor backend service CPU usage
+      cron:
+        name: "Monitor CPU usage and restart Laravel service"
+        minute: "0" 
+        hour: "*/6"  #check for CPU utilization every 6 hours
+        job: "ansible-playbook check_and_restart_ansible_playbook.yaml -i "

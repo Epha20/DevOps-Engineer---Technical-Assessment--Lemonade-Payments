@@ -1,0 +1,18 @@
+---
+- name: Monitor CPU usage and restart backend service
+  hosts: lemonade_server_1
+  become: true #become root
+  tasks:
+    - name: Check CPU usage
+      command: "top -bn1 | grep 'Cpu(s)' | sed 's/.*, *\\([0-9.]*\\)%* id.*/\\1/' | awk '{print 100 - $1}'"
+      register: cpu_usage
+
+    - name: Debug CPU usage
+      debug:
+        msg: "Current CPU usage: {{ cpu_usage.stdout }}%"
+
+    - name: Restart Laravel service if CPU usage exceeds 80%
+      systemd:
+        name: lemonade_backend_service
+        state: restarted
+      when: cpu_usage.stdout | float > 80.0
